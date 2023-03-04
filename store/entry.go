@@ -9,20 +9,19 @@ import (
 
 // CRC | tsamp | ksz | vsz | key | value
 // 4 B | 8 B   | 4B  | 4B
-// key -> file_id | vsz | vpos
 
-type Entry struct {
+type DataEntry struct {
 	Checksum  uint32
 	Key       []byte // 键
 	Value     []byte // 值
 	Timestamp int64  // 时间戳
 }
 
-// NewEntry creates a new `Entry` with the given `key` and `value`
-func NewEntry(key, value []byte, time *time.Time) Entry {
+// NewEntry creates a new `DataEntry` with the given `key` and `value`
+func NewEntry(key, value []byte, time *time.Time) DataEntry {
 	checksum := crc32.ChecksumIEEE(value)
 
-	return Entry{
+	return DataEntry{
 		Checksum:  checksum,
 		Key:       key,
 		Value:     value,
@@ -30,14 +29,14 @@ func NewEntry(key, value []byte, time *time.Time) Entry {
 	}
 }
 
-func DecodeEntry(data []byte) (*Entry, error) {
+func DecodeEntry(data []byte) (*DataEntry, error) {
 	if len(data) < 20 {
 		errors.New("data is to short")
 	}
 	checkSum := binary.BigEndian.Uint32(data[:4])
 	ksz := binary.BigEndian.Uint32(data[12:16])
 
-	entry := &Entry{
+	entry := &DataEntry{
 		Timestamp: int64(binary.BigEndian.Uint64(data[4:12])),
 		Key:       data[20 : 20+ksz],
 		Value:     data[20+ksz:],
@@ -48,7 +47,7 @@ func DecodeEntry(data []byte) (*Entry, error) {
 	return entry, nil
 }
 
-func EncodeEntry(entry *Entry) ([]byte, error) {
+func EncodeEntry(entry *DataEntry) ([]byte, error) {
 	ksz := uint32(len(entry.Key))
 	vsz := uint32(len(entry.Value))
 

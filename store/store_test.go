@@ -76,7 +76,7 @@ func TestStore_Read(t *testing.T) {
 	// write some data to store
 	key := "foo"
 	value := "bar"
-	entry := &Entry{
+	entry := &DataEntry{
 		Checksum:  crc32.ChecksumIEEE([]byte(value)),
 		Key:       []byte(key),
 		Value:     []byte(value),

@@ -176,17 +176,17 @@ func (store *Store) Write(data []byte) (int, error) {
 	return n, nil
 }
 
-func (store *Store) Read(fileID uint32, offset int64, vsz int) (*Entry, error) {
+func (store *Store) Read(fileID uint32, offset int64, vsz int) (*DataEntry, error) {
 
 	entry, err := store.readData(fileID, offset, vsz)
 	if err != nil {
-		return &Entry{}, err
+		return &DataEntry{}, err
 	}
 
 	return entry, nil
 }
 
-func (store *Store) readData(fileID uint32, offset int64, size int) (*Entry, error) {
+func (store *Store) readData(fileID uint32, offset int64, size int) (*DataEntry, error) {
 	fileName := filepath.Join(store.dir, fmt.Sprintf("000000000-%09d.bsm", fileID))
 	file, err := os.Open(fileName)
 	if err != nil {
