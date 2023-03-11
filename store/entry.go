@@ -29,6 +29,21 @@ func NewEntry(key, value []byte, time *time.Time) DataEntry {
 	}
 }
 
+func (entry *DataEntry) Decode(data []byte) error {
+	if len(data) < 20 {
+		errors.New("data is to short")
+	}
+	checkSum := binary.BigEndian.Uint32(data[:4])
+	ksz := binary.BigEndian.Uint32(data[12:16])
+	entry.Timestamp = int64(binary.BigEndian.Uint64(data[4:12]))
+	entry.Key = data[20 : 20+ksz]
+	entry.Value = data[20+ksz:]
+	if crc32.ChecksumIEEE(entry.Value) != checkSum {
+		return errors.New("value is incorrect")
+	}
+	return nil
+}
+
 func DecodeEntry(data []byte) (*DataEntry, error) {
 	if len(data) < 20 {
 		errors.New("data is to short")
