@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"mouse/cmd"
-	"mouse/cmd/moused/help"
-	"mouse/cmd/moused/run"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"mousedb/cmd"
+	"mousedb/cmd/moused/help"
+	"mousedb/cmd/moused/run"
 )
 
 // These variables are populated via the Go linker.

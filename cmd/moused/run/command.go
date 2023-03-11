@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mousedb/pkg/logger"
+	"mousedb/pkg/toml"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
-
-	"mouse/pkg/logger"
 
 	"go.uber.org/zap"
 )
@@ -137,6 +137,11 @@ func (cmd *Command) ParseConfig(path string) (*Config, error) {
 	return config, nil
 }
 
+// ApplyEnvOverrides apply the environment configuration on top of the config.
+func (c *Config) ApplyEnvOverrides(getenv func(string) string) error {
+	return toml.ApplyEnvOverrides(getenv, "INFLUXDB", c)
+}
+
 // Run parses the config from args and runs the server.
 func (cmd *Command) Run(args ...string) error {
 	// Parse the command line flags.
@@ -150,15 +155,15 @@ func (cmd *Command) Run(args ...string) error {
 		return fmt.Errorf("parse config: %s", err)
 	}
 
-	//TODO Apply any environment variables on top of the parsed config
-	//if err := config.ApplyEnvOverrides(cmd.Getenv); err != nil {
-	//	return fmt.Errorf("apply env config: %v", err)
-	//}
+	// TODO Apply any environment variables on top of the parsed config
+	if err := config.ApplyEnvOverrides(cmd.Getenv); err != nil {
+		return fmt.Errorf("apply env config: %v", err)
+	}
 
 	//TODO Validate the configuration.
-	//if err := config.Validate(); err != nil {
-	//	return fmt.Errorf("%s. To generate a valid configuration file run `influxd config > influxdb.generated.conf`", err)
-	//}
+	if err := config.Validate(); err != nil {
+		return fmt.Errorf("%s. To generate a valid configuration file run `moused config > mousedb.generated.conf`", err)
+	}
 
 	var logErr error
 	if cmd.Logger, logErr = config.Logging.New(cmd.Stderr); logErr != nil {

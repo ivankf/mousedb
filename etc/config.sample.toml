@@ -1,0 +1,14 @@
+# bind-address = "0.0.0.0:8062"
+
+[storage]
+  # dir = "/var/lib/mousedb/data"
+  # expiry-secs = 0
+  # max-file-size = 2147483648
+  # open-timeout_secs = 10
+  # merge-secs = 60
+  # value-max-size = 1048576
+
+[logging]
+# format = "auto"
+# level = "info"
+# suppress-logo = false

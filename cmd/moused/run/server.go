@@ -2,13 +2,16 @@ package run
 
 import (
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"net"
 	"os"
 	"runtime"
 	"runtime/pprof"
 	"time"
+
+	"mousedb/service/storage"
+
+	"go.uber.org/zap"
 )
 
 var startTime time.Time
@@ -77,6 +80,7 @@ func NewServer(c *Config, buildInfo *BuildInfo) (*Server, error) {
 		BindAddress: bind,
 		config:      c,
 	}
+
 	//TODO add listen
 
 	return s, nil
@@ -98,8 +102,17 @@ func (s *Server) Open() error {
 
 	//TODO 设置路由
 	//TODO 装载服务
+	s.appendStorage(&s.config.Storage)
 	//TODO 启动服务
+	for _, service := range s.Services {
+		service.Open()
+	}
 	return nil
+}
+
+func (s *Server) appendStorage(c *storage.Config) {
+	storage := storage.New(c)
+	s.Services = append(s.Services, storage)
 }
 
 // prof stores the file locations of active profiles.
