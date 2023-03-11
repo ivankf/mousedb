@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"hash/crc32"
@@ -67,7 +68,7 @@ func EncodeEntry(entry *DataEntry) ([]byte, error) {
 	vsz := uint32(len(entry.Value))
 
 	data := make([]byte, 20+ksz+vsz)
-	binary.BigEndian.PutUint32(data[:4], crc32.ChecksumIEEE(entry.Value))
+	binary.BigEndian.PutUint32(data[:4], crc32.ChecksumIEEE(bytes.Join([][]byte{entry.Key, entry.Value}, nil)))
 	binary.BigEndian.PutUint64(data[4:12], uint64(entry.Timestamp))
 	binary.BigEndian.PutUint32(data[12:16], ksz)
 	binary.BigEndian.PutUint32(data[16:20], vsz)

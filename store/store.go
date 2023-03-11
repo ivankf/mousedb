@@ -11,6 +11,9 @@ import (
 
 const (
 	MaxFileSize = 1 << 26 // 64MB
+
+	HeaderSize = 16 // crc(4) + timestamp(8) + key_size(4)
+	Magic      = byte(0x10)
 )
 
 type Store struct {
@@ -57,6 +60,8 @@ func (store *Store) createActiveFile() error {
 	if err != nil {
 		return err
 	}
+	file.Write([]byte{Magic}) // Write Magic to file header
+	file.Sync()
 	// 添加为活跃文件
 	store.active = file
 
@@ -70,7 +75,7 @@ func (store *Store) createActiveFile() error {
 func (store *Store) RenameActiveFile() error {
 
 	oldFileName := filepath.Join(store.dir, "000000000-000000000.bsm")
-	newFileName := filepath.Join(store.dir, fmt.Sprintf("000000000-%09d.data", store.GetFileID()))
+	newFileName := filepath.Join(store.dir, fmt.Sprintf("000000000-%09d.bsm", store.GetFileID()))
 	err := os.Rename(oldFileName, newFileName)
 	if err != nil {
 		return err
